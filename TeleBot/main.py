@@ -14,11 +14,11 @@ smile_dict = {
 }
 
 bot = telebot.TeleBot('5492924379:AAEijHKoeq4tP2LBgieORtG5Ph1FIuMeoho')
-open_wheathe_token = 'fa1cda49b21d24c8b1eef8d501cad413'
+open_weather_token = 'fa1cda49b21d24c8b1eef8d501cad413'
 
 def get_weather(city, open_wheathe_token):
     try:
-        r = requests.get('http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric'.format(city ,open_wheathe_token))
+        r = requests.get('http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric'.format(city ,open_weather_token))
         data =r.json()
         #pprint(data)
         city = data['name']
@@ -89,7 +89,7 @@ def lalala(message):
 
         elif message.text.lower().split()[0] == "погода":
             city1 = message.text.lower().split()[1]
-            bot.send_message(message.chat.id, get_weather(city1, open_wheathe_token))
+            bot.send_message(message.chat.id, get_weather(city1, open_weather_token))
         elif message.text == "Курс валют":
             bot.send_message(message.chat.id, Exchange_Rates())
         elif message.text == "help":
@@ -104,7 +104,7 @@ def callback_inline(call):
         if call.message:
         	# keyboard (Работа с кнопками под текстом)
             if call.data == '1':
-                bot.send_message(call.message.chat.id, get_weather('Краснодар', open_wheathe_token))
+                bot.send_message(call.message.chat.id, get_weather('Краснодар', open_weather_token))
             elif call.data == '2':
                 bot.send_message(call.message.chat.id, 'Напишите слово погода и через пробел город, например: погода москва')
 
