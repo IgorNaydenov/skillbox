@@ -129,7 +129,7 @@ def callback_inline(call):
             elif call.data == '4':
                 bot.send_message(call.message.chat.id, Exchange_Rates2())
                 bot.send_message(call.message.chat.id,
-                                 'Напишите слово валюта и через пробел саму на латинице валюту валюту, например: <b>валюта BYN</b>',
+                                 'Напишите слово валюта и через пробел на латинице саму валюту, например: <b>валюта BYN</b>',
                                  parse_mode='html')
 
 
