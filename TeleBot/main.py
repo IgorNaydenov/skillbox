@@ -16,9 +16,9 @@ smile_dict = {
 bot = telebot.TeleBot('5492924379:AAEijHKoeq4tP2LBgieORtG5Ph1FIuMeoho')
 open_weather_token = 'fa1cda49b21d24c8b1eef8d501cad413'
 
-def get_weather(city, open_wheathe_token):
+def get_weather(city, open_weather_token):
     try:
-        r = requests.get('http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric'.format(city ,open_weather_token))
+        r = requests.get('http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric'.format(city, open_weather_token))
         data =r.json()
         #pprint(data)
         city = data['name']
