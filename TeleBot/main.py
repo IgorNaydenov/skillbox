@@ -4,6 +4,7 @@ import json
 from telebot import types
 from datetime import datetime
 
+
 smile_dict = {
     'Clear': 'Ясно \U00002600',
     'Clouds': 'Облачно \U00002601',
@@ -26,18 +27,43 @@ def get_weather(city, open_weather_token):
         city = data['name']
         cut_weather = data['main']['temp']
         humidity = data['main']['humidity']
-        pressure = data['main']['pressure']
         wind = data['wind']['speed']
         weather_description = data['weather'][0]['main']
         if weather_description in smile_dict:
             wd = smile_dict[weather_description]
         else:
             wd = 'Посмотри в окно'
-        result = (f'Погода в городе: {city} \nТемпература: {cut_weather}°C {wd}\n'
-                  f'Влажность: {humidity}%\nДавление: {pressure} мм.рт.ст.\nВетер {wind} м/с')
+        result = (f'Погода в городе: {city} {wd}\nТемпература: {cut_weather}°C\n'
+                  f'Влажность: {humidity}%\nВетер {wind} м/с')
     except Exception as ex:
         result = ('Проверьте название города')
     return result
+
+
+def get_forecast(city, open_weather_token):
+    try:
+        rt = requests.get('http://api.openweathermap.org/data/2.5/forecast?q={}&appid={}&units=metric'.format(city, open_weather_token))
+        data = rt.json()
+        result = []
+        today_date = datetime.now().strftime('%Y-%m-%d')
+        for i in range(len(data['list'])):
+            date1 = data['list'][i]['dt_txt']
+            diff_date = (int(date1.split()[0].split('-')[2]) - int(today_date.split('-')[2]))
+            if (today_date != date1.split()[0]) and (date1.split()[1] == '12:00:00'
+            or date1.split()[1] == '00:00:00') and (diff_date <= 3):
+                day = date1.split()[0] + ', Днем'
+                night = date1.split()[0] + ', Ночью'
+                forecast_date = day if date1.split()[1] == '12:00:00' else night
+                forecast_temp = round(data['list'][i]['main']['temp'])
+                forecast_humidity = data['list'][i]['main']['humidity']
+                forecast_state = data['list'][i]['weather'][0]['main']
+                forecast_wind = round(data['list'][i]['wind']['speed'])
+                result.append(f'Прогноз на {forecast_date} {smile_dict[forecast_state]}\n'
+                              f'Температура: {forecast_temp}°C, Влажность {forecast_humidity}%, Ветер {forecast_wind}м/с')
+    except Exception:
+        result.append('Проверьте название города')
+    return result
+
 
 
 def Exchange_Rates(value5='USD'):
@@ -86,17 +112,23 @@ def lalala(message):
     if message.chat.type == 'private':
         if message.text == 'Погода':
 
-            # keyboard (Создание кнопок под текстом)
             markup = types.InlineKeyboardMarkup(row_width=2)
             item1 = types.InlineKeyboardButton("Погода в Краснодаре", callback_data='1')
-            item2 = types.InlineKeyboardButton("Погода в другом городе", callback_data='2')
-            markup.add(item1, item2)
+            item2 = types.InlineKeyboardButton("Прогноз в Краснодаре", callback_data='5')
+            item3 = types.InlineKeyboardButton("Погода в другом городе", callback_data='2')
+            markup.add(item1, item2, item3)
 
             bot.send_message(message.chat.id, 'Что вам нужно?', reply_markup=markup)
 
         elif message.text.lower().split()[0] == "погода":
             city1 = message.text.lower().split()[1]
             bot.send_message(message.chat.id, get_weather(city1, open_weather_token))
+        elif message.text.lower().split()[0] == "прогноз":
+            city1 = message.text.lower().split()[1]
+            forecast_list = get_forecast(city1, open_weather_token)
+            for i_line in forecast_list:
+                bot.send_message(message.chat.id, i_line)
+
         elif message.text == "Курс валют":
             #bot.send_message(message.chat.id, Exchange_Rates())
             markup = types.InlineKeyboardMarkup(row_width=2)
@@ -108,7 +140,7 @@ def lalala(message):
              currency = message.text.upper().split()[1]
              bot.send_message(message.chat.id, Exchange_Rates(currency))
         elif message.text == "help":
-            bot.send_message(message.chat.id, 'в разработке')
+            bot.send_message(message.chat.id, 'нажмите на соседние кнопки, там есть подсказки')
         else:
             bot.send_message(message.chat.id, 'я тебя не понимаю')
 
@@ -122,7 +154,7 @@ def callback_inline(call):
                 bot.send_message(call.message.chat.id, get_weather('Краснодар', open_weather_token))
             elif call.data == '2':
                 bot.send_message(call.message.chat.id,
-                                 'Напишите слово погода и через пробел город, например: <b>погода москва</b>',
+                                 'Напишите слово погода/прогноз и через пробел город, например: <b>погода москва</b>',
                                  parse_mode='html')
             elif call.data == '3':
                 bot.send_message(call.message.chat.id, Exchange_Rates())
@@ -131,15 +163,17 @@ def callback_inline(call):
                 bot.send_message(call.message.chat.id,
                                  'Напишите слово валюта и через пробел на латинице саму валюту, например: <b>валюта BYN</b>',
                                  parse_mode='html')
+            elif call.data == '5':
+                forecast_list = get_forecast('Краснодар', open_weather_token)
+                for i_line in forecast_list:
+                    bot.send_message(call.message.chat.id, i_line, parse_mode='html')
+
 
 
             # remove inline buttons
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="",
                                   reply_markup=None)
 
-            # show alert
-            # bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
-            #    text="Пишите, всегда поможем!")
 
     except Exception as e:
         print(repr(e))
