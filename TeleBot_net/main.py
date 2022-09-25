@@ -9,6 +9,7 @@ today_date = datetime.now().strftime('%d-%m-%Y %H:%M')
 
 """
 divice types: "cisco_ios", "huawei", "linux"
+cisco_ios_telnet - если нужно подключение по телнет
 """
 def get_device(ip):
     device = {
@@ -85,6 +86,8 @@ def callback_inline(call):
             device = ConnectHandler(**get_device(ip_dev))
             output = device.send_command('show interface status')
             bot.send_message(call.message.chat.id, output)
+            output2 = device.send_command('sh ip int br')
+            bot.send_message(call.message.chat.id, output2)
 
             with open(f'logs/{call.message.chat.id}_{call.message.chat.first_name}.log', 'a', encoding='utf-8') as file:
                 line = f'{today_date} - {ip_dev} show interface status\n'
