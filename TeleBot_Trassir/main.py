@@ -4,32 +4,36 @@ from telebot import types
 from datetime import datetime
 import base64
 
-white_list = [938775711, 544702979, 244741604, 1164584848, 1776437089]
-bot = telebot.TeleBot('5492924379:AAEijHKoeq4tP2LBgieORtG5Ph1FIuMeoho')
+white_list = [938775711, 1164584848, 1776437089]
+bot = telebot.TeleBot('5733208508:AAGci784PLTtyEABcBvDGCVHR_ZMHfo0JqE')
 today_date = datetime.now().strftime('%d-%m-%Y %H:%M')
 
 """
 divice types: "cisco_ios", "huawei", "linux"
 cisco_ios_telnet - если нужно подключение по телнет
-"""
-user1 = (base64.b64decode('bmFpZGVub3YuaXM='.encode('UTF-8'))).decode()
-pass1 = (base64.b64decode('Y2FsaXBzMTFP'.encode('UTF-8'))).decode()
 
-def get_device(ip):
+adminbot  JMkrnLvof2$k
+"""
+# user1 = (base64.b64decode('bmFpZGVub3YuaXM='.encode('UTF-8'))).decode()
+# pass1 = (base64.b64decode('Y2FsaXBzMTFP'.encode('UTF-8'))).decode()
+
+
+
+def get_device(ip, pass1):
     device = {
-        "device_type": "cisco_ios",
+        "device_type": "linux",
         "host": ip,
-        "username": user1,
+        "username": 'trassir',
         "password": pass1,
         "port": 22
     }
     return device
 
 ping_list = []
-with open('ip_list.txt', 'r') as file:
+with open('ip_list.txt', 'r', encoding='UTF-8') as file:
     for i_line in file:
         k = i_line.split(',')
-        ping_list.append([k[0], k[1].strip()])
+        ping_list.append([k[0], k[1], k[2].strip()])
 
 
 @bot.message_handler(func=lambda message: message.chat.id not in white_list)
@@ -45,8 +49,8 @@ def fig_vam(message):
 def welcome(message):
     # keyboard (Создание кнопок и приветствие)
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = types.KeyboardButton("Пинг")
-    item2 = types.KeyboardButton("Ребут")
+    item1 = types.KeyboardButton("Trassir")
+    item2 = types.KeyboardButton("Cisco")
     item3 = types.KeyboardButton("help")
 
     markup.add(item1, item2, item3)
@@ -63,16 +67,16 @@ def welcome(message):
 def lalala(message):
     if message.chat.type == 'private':
 
-        if message.text == 'Пинг':
+        if message.text == 'Trassir':
             markup = types.InlineKeyboardMarkup(row_width=1)
             for i_device in ping_list:
                 item = types.InlineKeyboardButton(i_device[0],
-                                                  callback_data=str(ping_list.index([i_device[0], i_device[1]])))
+                                                  callback_data=str(ping_list.index([i_device[0], i_device[1], i_device[2]])))
                 markup.add(item)
 
             bot.send_message(message.chat.id, 'Выберите устройство', reply_markup=markup)
 
-        elif message.text == "Ребут":
+        elif message.text == "Cisco":
             bot.send_message(message.chat.id, 'Че ты уже ребутить собрался, тут еще ничего нет')
 
         elif message.text == "help":
@@ -87,14 +91,14 @@ def callback_inline(call):
         if call.message:
             # keyboard (Работа с кнопками под текстом)
             ip_dev = ping_list[int(call.data)][1]
-            device = ConnectHandler(**get_device(ip_dev))
-            output = device.send_command('show interface status')
+            pass_dev = ping_list[int(call.data)][2]
+            device = ConnectHandler(**get_device(ip_dev, pass_dev))
+            output = device.send_command('sudo pwd')
             bot.send_message(call.message.chat.id, output)
-            output2 = device.send_command('sh ip int br')
-            bot.send_message(call.message.chat.id, output2)
+
 
             with open(f'logs/{call.message.chat.id}_{call.message.chat.first_name}.log', 'a', encoding='utf-8') as file:
-                line = f'{today_date} - {ip_dev} show interface status\n'
+                line = f'{today_date} - {ip_dev} reboot\n'
                 file.write(line)
 
             # remove inline buttons

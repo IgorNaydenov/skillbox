@@ -13,3 +13,8 @@
 25-09-2022 19:50 - 172.16.7.1 show interface status
 25-09-2022 20:10 - 192.168.7.35 show interface status
 26-09-2022 09:10 - 172.16.7.1 show interface status
+26-09-2022 10:11 - 192.168.6.150 show interface status
+26-09-2022 10:11 - 192.168.6.151 show interface status
+26-09-2022 10:24 -  192.168.6.150 reboot
+26-09-2022 10:24 -  172.16.4.4 reboot
+26-09-2022 10:24 -  172.16.4.3 reboot
