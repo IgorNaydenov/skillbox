@@ -71,7 +71,7 @@ def lalala(message):
             markup = types.InlineKeyboardMarkup(row_width=1)
             for i_device in ping_list:
                 item = types.InlineKeyboardButton(i_device[0],
-                                                  callback_data=str(ping_list.index([i_device[0], i_device[1], i_device[2]])))
+                                        callback_data=str(ping_list.index([i_device[0], i_device[1], i_device[2]])))
                 markup.add(item)
 
             bot.send_message(message.chat.id, 'Выберите устройство', reply_markup=markup)
@@ -93,7 +93,8 @@ def callback_inline(call):
             ip_dev = ping_list[int(call.data)][1]
             pass_dev = ping_list[int(call.data)][2]
             device = ConnectHandler(**get_device(ip_dev, pass_dev))
-            output = device.send_command('sudo pwd')
+            device.send_command('sudo reboot')
+            output = f'Трассир {ping_list[int(call.data)][0]} будет перезагружен'
             bot.send_message(call.message.chat.id, output)
 
 
