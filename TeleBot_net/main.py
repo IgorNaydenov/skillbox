@@ -11,6 +11,7 @@ today_date = datetime.now().strftime('%d-%m-%Y %H:%M')
 """
 divice types: "cisco_ios", "huawei", "linux"
 cisco_ios_telnet - если нужно подключение по телнет
+username admin privilege 15 pa Pphz55p1AX
 """
 user1 = (base64.b64decode('bmFpZGVub3YuaXM='.encode('UTF-8'))).decode()
 pass1 = (base64.b64decode('Y2FsaXBzMTFP'.encode('UTF-8'))).decode()
@@ -83,19 +84,26 @@ def lalala(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
+
     try:
         if call.message:
             # keyboard (Работа с кнопками под текстом)
             ip_dev = ping_list[int(call.data)][1]
             device = ConnectHandler(**get_device(ip_dev))
+
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            item1 = types.KeyboardButton("Port_List")
+            item2 = types.KeyboardButton("Up/Down")
+
+            markup.add(item1, item2)
+
             output = device.send_command('show interface status')
             bot.send_message(call.message.chat.id, output)
-            output2 = device.send_command('sh ip int br')
-            bot.send_message(call.message.chat.id, output2)
 
-            with open(f'logs/{call.message.chat.id}_{call.message.chat.first_name}.log', 'a', encoding='utf-8') as file:
-                line = f'{today_date} - {ip_dev} show interface status\n'
-                file.write(line)
+
+            # with open(f'log/{call.message.chat.id}_{call.message.chat.first_name}.log', 'a', encoding='utf-8') as file:
+            #     line = f'{today_date} - {ip_dev} show interface status\n'
+            #     file.write(line)
 
             # remove inline buttons
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="",
